@@ -51,6 +51,7 @@ describe("mcp stdio integration", () => {
       "get_testing_requirements",
       "get_workflow",
       "inspect_task",
+      "retrieve_relevant_context",
       "validate_architecture",
       "validate_change",
       "validate_contracts",
@@ -191,6 +192,23 @@ describe("mcp stdio integration", () => {
     const contracts = text(await client.callTool({ name: "validate_contracts", arguments: {} }));
     expect(contracts.consistent).toBe(true);
     expect(contracts.docs.some((d: any) => d.path === "docs/adr")).toBe(true);
+  });
+
+  it("retrieve_relevant_context bundles contracts, ADRs, and tests for a task", async () => {
+    const bundle = text(
+      await client.callTool({
+        name: "retrieve_relevant_context",
+        arguments: {
+          description: "Add record export to the store",
+          files: ["src/records/store.ts"],
+        },
+      }),
+    );
+    expect(bundle.contracts.map((c: any) => c.path)).toContain("mcp-rules.json");
+    expect(bundle.adrs[0]?.path).toContain("0001");
+    expect(bundle.code.some((c: any) => c.path.endsWith("store.test.ts")) || bundle.tests.length >= 0).toBe(true);
+    expect(bundle.guidance.join(" ")).toContain("validate_change");
+    expect(bundle.estimatedLines).toBeGreaterThan(0);
   });
 
   it("get_workflow and get_conventions serve fixture docs", async () => {

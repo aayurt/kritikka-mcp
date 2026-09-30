@@ -16,6 +16,7 @@ import {
   analyzeImpact,
 } from "./tools/governance-tools.js";
 import { getConstraints, validateContractsTool } from "./tools/contracts-tools.js";
+import { retrieveRelevantContext } from "./tools/context-tools.js";
 
 const taskSchema = z.object({
   description: z.string().min(1),
@@ -215,6 +216,23 @@ export function createServer(ctx: ProjectContext): McpServer {
     },
     async () => ({
       content: [{ type: "text", text: JSON.stringify(validateContractsTool(ctx), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "retrieve_relevant_context",
+    {
+      title: "Retrieve relevant context",
+      description:
+        "Minimal context bundle for a task: contracts governing the touched paths, required/keyword-matched ADRs, the target files, same-directory pattern neighbors, and covering tests - with line counts and guidance. Read this before coding.",
+      annotations: readOnly,
+      inputSchema: {
+        description: z.string().min(1),
+        files: z.array(z.string().min(1)).default([]),
+      },
+    },
+    async ({ description, files }) => ({
+      content: [{ type: "text", text: JSON.stringify(retrieveRelevantContext(ctx, { description, files }), null, 2) }],
     }),
   );
 
