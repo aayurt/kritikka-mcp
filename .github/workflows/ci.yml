@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Typecheck, test, and smoke (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: project-mcp/package-lock.json
+
+      - name: Install dependencies
+        working-directory: project-mcp
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck (src + tests)
+        working-directory: project-mcp
+        run: npm run typecheck
+
+      - name: Unit + integration tests
+        working-directory: project-mcp
+        run: npm test
+
+      - name: Smoke test through a live MCP client
+        working-directory: project-mcp
+        run: node scripts/smoke.mjs "$(cd .. && pwd)"
