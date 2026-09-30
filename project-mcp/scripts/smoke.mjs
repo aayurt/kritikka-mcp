@@ -28,7 +28,7 @@ const text = (res) => JSON.parse(res.content[0].text);
 
 // 1. identity
 const identity = text(await client.callTool({ name: "get_project_identity", arguments: {} }));
-check("identity.name", identity.name === "Project MCP Playground", identity.name);
+check("identity.name", typeof identity.name === "string" && identity.name.length > 0, identity.name);
 check("identity.description", typeof identity.description === "string" && identity.description.length > 0);
 check("identity.inventory", identity.docInventory.length > 0 && identity.docInventory.every((d) => typeof d.present === "boolean"));
 

@@ -45,11 +45,31 @@ const requireDocUpdateRule = z.object({
   docs: globArray,
 });
 
+const layerDependencyRule = z
+  .object({
+    id: z.string().min(1),
+    type: z.literal("layerDependency"),
+    /** Ordered from outermost to innermost; index = layer depth. */
+    layers: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          globs: globArray,
+        }),
+      )
+      .min(2),
+    /** Import direction is allowed only toward deeper layers. */
+    direction: z.enum(["inward-only"]).default("inward-only"),
+    reason: z.string().min(1),
+    severity: z.enum(["error", "warning"]).default("error"),
+  });
+
 const ruleSchema = z.discriminatedUnion("type", [
   forbiddenRule,
   requireAdrRule,
   requireTestRule,
   requireDocUpdateRule,
+  layerDependencyRule,
 ]);
 
 const rulesFileSchema = z.object({
