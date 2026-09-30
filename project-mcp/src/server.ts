@@ -17,6 +17,7 @@ import {
 } from "./tools/governance-tools.js";
 import { getConstraints, validateContractsTool } from "./tools/contracts-tools.js";
 import { retrieveRelevantContext } from "./tools/context-tools.js";
+import { compressContextTool } from "./tools/compress-context.js";
 
 const taskSchema = z.object({
   description: z.string().min(1),
@@ -233,6 +234,24 @@ export function createServer(ctx: ProjectContext): McpServer {
     },
     async ({ description, files }) => ({
       content: [{ type: "text", text: JSON.stringify(retrieveRelevantContext(ctx, { description, files }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "compress_context",
+    {
+      title: "Compress context",
+      description:
+        "Budget-aware condensation of the relevant-context bundle: signature views for code, section extracts for docs, key inventories for JSON, test-name lists for tests. Deterministic strategies with per-item attribution.",
+      annotations: readOnly,
+      inputSchema: {
+        description: z.string().min(1),
+        files: z.array(z.string().min(1)).default([]),
+        budgetLines: z.number().int().positive().max(5000).default(400),
+      },
+    },
+    async ({ description, files, budgetLines }) => ({
+      content: [{ type: "text", text: JSON.stringify(compressContextTool(ctx, { description, files, budgetLines }), null, 2) }],
     }),
   );
 
