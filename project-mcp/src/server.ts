@@ -19,6 +19,11 @@ import { getConstraints, validateContractsTool } from "./tools/contracts-tools.j
 import { retrieveRelevantContext } from "./tools/context-tools.js";
 import { compressContextTool } from "./tools/compress-context.js";
 import { findExistingPatternTool } from "./tools/find-pattern.js";
+import {
+  validateJulesReadyTool,
+  prepareJulesTaskTool,
+  validateJulesResultTool,
+} from "./tools/jules-tools.js";
 
 const taskSchema = z.object({
   description: z.string().min(1),
@@ -270,6 +275,70 @@ export function createServer(ctx: ProjectContext): McpServer {
     },
     async ({ concept, limit }) => ({
       content: [{ type: "text", text: JSON.stringify(findExistingPatternTool(ctx, { concept, limit }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "validate_jules_ready",
+    {
+      title: "Validate Jules ready",
+      description:
+        "Pre-dispatch gate: git worktree/branch/cleanliness (allowlisted read-only git), remote freshness from remote-tracking refs, install state, merge/rebase conflicts, acceptance criteria, and identified tests. Returns ready + blockers.",
+      annotations: readOnly,
+      inputSchema: {
+        acceptanceCriteria: z.array(z.string().min(1)).min(1),
+        testFiles: z.array(z.string().min(1)).min(1),
+        requireClean: z.boolean().optional(),
+      },
+    },
+    async ({ acceptanceCriteria, testFiles, requireClean }) => ({
+      content: [{ type: "text", text: JSON.stringify(validateJulesReadyTool(ctx, { acceptanceCriteria, testFiles, requireClean }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "prepare_jules_task",
+    {
+      title: "Prepare Jules task",
+      description:
+        "Assemble the dispatch package: task description, acceptance criteria, compressed relevant-context bundle, governing constraints (forbidden paths, required ADRs), and the jules CLI command template. Dispatch itself stays external (Hermes or human runs it).",
+      annotations: readOnly,
+      inputSchema: {
+        description: z.string().min(1),
+        plannedPaths: z.array(z.string().min(1)).default([]),
+        acceptanceCriteria: z.array(z.string().min(1)).min(1),
+        testFiles: z.array(z.string().min(1)).min(1),
+        budgetLines: z.number().int().positive().max(5000).optional(),
+      },
+    },
+    async ({ description, plannedPaths, acceptanceCriteria, testFiles, budgetLines }) => ({
+      content: [{ type: "text", text: JSON.stringify(prepareJulesTaskTool(ctx, { description, plannedPaths, acceptanceCriteria, testFiles, budgetLines }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "validate_jules_result",
+    {
+      title: "Validate Jules result",
+      description:
+        "Post-dispatch gate: run the agent-reported change set through the rule engine (violations, warnings, requiredActions) plus a secrets scan. Governance only; CI remains the source of truth for tests.",
+      annotations: readOnly,
+      inputSchema: {
+        branch: z.string().min(1),
+        changes: z
+          .array(
+            z.object({
+              path: z.string().min(1),
+              changeType: z.enum(["create", "modify", "delete"]),
+            }),
+          )
+          .min(1),
+        acceptanceCriteria: z.array(z.string().min(1)).default([]),
+        claimedPassingTests: z.array(z.string().min(1)).optional(),
+      },
+    },
+    async ({ branch, changes, acceptanceCriteria, claimedPassingTests }) => ({
+      content: [{ type: "text", text: JSON.stringify(validateJulesResultTool(ctx, { branch, changes, acceptanceCriteria, claimedPassingTests }), null, 2) }],
     }),
   );
 
