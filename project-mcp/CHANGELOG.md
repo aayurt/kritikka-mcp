@@ -1,5 +1,11 @@
 # project-mcp
 
+## 0.1.3
+
+### Patch Changes
+
+- Add npm keywords, README hero artwork, and MIT license to the package listing
+
 ## 0.1.2
 
 ### Patch Changes
