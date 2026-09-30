@@ -1,6 +1,6 @@
 {
   "name": "kritikka-mcp",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Read-only MCP server serving project docs, ADRs, workflow, and rule-based change validation.",
   "keywords": [
     "mcp",

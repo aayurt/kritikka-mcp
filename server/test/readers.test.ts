@@ -96,7 +96,7 @@ describe("ADR listing", () => {
   });
 
   it("returns an empty list when docs/adr is absent", () => {
-    const root = mkdtempSync(join(tmpdir(), "project-mcp-empty-"));
+    const root = mkdtempSync(join(tmpdir(), "kritikka-empty-"));
     try {
       expect(listAdrFiles(root)).toEqual([]);
       expect(listAdrs(root)).toEqual([]);
@@ -190,7 +190,7 @@ describe("rules loading", () => {
   });
 
   it("throws RulesValidationError for a missing rules file", () => {
-    const root = mkdtempSync(join(tmpdir(), "project-mcp-norules-"));
+    const root = mkdtempSync(join(tmpdir(), "kritikka-norules-"));
     try {
       expect(() => loadRules(root)).toThrow(/mcp-rules.json not found/);
     } finally {
@@ -199,7 +199,7 @@ describe("rules loading", () => {
   });
 
   it("throws RulesValidationError for malformed JSON", () => {
-    const root = mkdtempSync(join(tmpdir(), "project-mcp-badjson-"));
+    const root = mkdtempSync(join(tmpdir(), "kritikka-badjson-"));
     writeFileSync(join(root, "mcp-rules.json"), "{ not json");
     try {
       expect(() => loadRules(root)).toThrow(/not valid JSON/);
@@ -224,7 +224,7 @@ describe("root resolution", () => {
   it("prefers the explicit argument over env and cwd", () => {
     const root = makeFixtureRepo();
     try {
-      process.env.PROJECT_MCP_ROOT = "/env/root";
+      process.env.KRITTIKA_MCP_ROOT = "/env/root";
       const prevArgv = process.argv;
       process.argv = ["node", "index.js", "unrelated"];
       try {
@@ -233,12 +233,29 @@ describe("root resolution", () => {
         process.argv = prevArgv;
       }
     } finally {
-      delete process.env.PROJECT_MCP_ROOT;
+      delete process.env.KRITTIKA_MCP_ROOT;
       removeFixtureRepo(root);
     }
   });
 
-  it("falls back to PROJECT_MCP_ROOT when no arg is given", () => {
+  it("falls back to KRITTIKA_MCP_ROOT when no arg is given", () => {
+    const root = makeFixtureRepo();
+    try {
+      process.env.KRITTIKA_MCP_ROOT = root;
+      const prevArgv = process.argv;
+      process.argv = ["node", "index.js"];
+      try {
+        expect(resolveProjectRoot()).toBe(root);
+      } finally {
+        process.argv = prevArgv;
+      }
+    } finally {
+      delete process.env.KRITTIKA_MCP_ROOT;
+      removeFixtureRepo(root);
+    }
+  });
+
+  it("still honors legacy PROJECT_MCP_ROOT when KRITTIKA_MCP_ROOT is unset", () => {
     const root = makeFixtureRepo();
     try {
       process.env.PROJECT_MCP_ROOT = root;

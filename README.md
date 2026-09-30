@@ -50,7 +50,7 @@ From source:
 
 ```bash
 git clone https://github.com/aayurt/kritikka-mcp
-cd kritikka-mcp && npm --prefix project-mcp install && npm --prefix project-mcp run build
+cd kritikka-mcp && npm --prefix server install && npm --prefix server run build
 ```
 
 The server is a stdio MCP binary and requires **Node ≥ 20**.
@@ -64,7 +64,7 @@ kritikka-mcp --root /path/to/target-repo
 # or: npx kritikka-mcp --root .
 ```
 
-The repository root resolves from `--root`, then the `PROJECT_MCP_ROOT` environment variable, then the server's working directory.
+The repository root resolves from `--root`, then the `KRITTIKA_MCP_ROOT` environment variable, then the server's working directory.
 
 **Generic client config** (`mcpServers` JSON):
 
@@ -131,9 +131,9 @@ claude mcp add krittika -- npx -y kritikka-mcp --root .
       "type": "layerDependency",
       "id": "layered-core",
       "layers": [
-        { "name": "tools", "globs": ["project-mcp/src/tools/**"] },
-        { "name": "engine", "globs": ["project-mcp/src/rules.ts"] },
-        { "name": "foundation", "globs": ["project-mcp/src/config.ts"] }
+        { "name": "tools", "globs": ["server/src/tools/**"] },
+        { "name": "engine", "globs": ["server/src/rules.ts"] },
+        { "name": "foundation", "globs": ["server/src/config.ts"] }
       ],
       "direction": "inward-only",
       "reason": "Tools depend on engines; engines depend only on the foundation.",
@@ -204,22 +204,22 @@ UNDERSTAND → PLAN → IMPLEMENT → TEST → VALIDATE
 │   ├── DEVELOPMENT.md         # Developer workflow
 │   ├── TESTING.md             # Testing policy
 │   └── adr/                   # Architecture decision records
-└── project-mcp/               # The MCP server (TypeScript, ESM)
-    ├── src/                   # tools/, config, readers, rules, scanner, jules
-    ├── test/                  # vitest unit + stdio integration suites
-    └── scripts/smoke.mjs      # 24-check live-client smoke test
+└── server/                     # The MCP server (TypeScript, ESM)
+    ├── src/                    # tools/, config, readers, rules, scanner, jules
+    ├── test/                   # vitest unit + stdio integration suites
+    └── scripts/smoke.mjs       # 24-check live-client smoke test
 ```
 
 ## Development
 
 ```bash
-npm --prefix project-mcp install
-npm --prefix project-mcp run typecheck     # src + tests
-npm --prefix project-mcp test              # build + 117 tests
-node project-mcp/scripts/smoke.mjs "$(pwd)"  # live MCP client smoke
+npm --prefix server install
+npm --prefix server run typecheck        # src + tests
+npm --prefix server test                 # build + 117 tests
+node server/scripts/smoke.mjs "$(pwd)"   # live MCP client smoke
 ```
 
-Releases use [changesets](https://github.com/changesets/changesets): add a changeset in `project-mcp/.changeset/`, merge the Version Packages PR, and CI publishes to npm.
+Releases use [changesets](https://github.com/changesets/changesets): add a changeset in `server/.changeset/`, merge the Version Packages PR, and CI publishes to npm.
 
 ## License
 

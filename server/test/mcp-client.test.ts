@@ -14,8 +14,8 @@ describe("mcp stdio integration", () => {
     files: {
       "src/records/store.ts": "export function storeRecord(): void {}\n",
       "src/records/store.test.ts": "it('stores a record', () => {});\n",
-      "project-mcp/node_modules/.keep": "",
-      "project-mcp/package-lock.json": "{}\n",
+      "server/node_modules/.keep": "",
+      "server/package-lock.json": "{}\n",
       ".gitignore": "node_modules/\n",
     },
   });

@@ -18,11 +18,11 @@ async function main(): Promise<void> {
     ctx = loadProjectContext(rootArg);
   } catch (error) {
     if (error instanceof RulesValidationError) {
-      console.error(`project-mcp: ${error.message}`);
+      console.error(`kritikka-mcp: ${error.message}`);
       for (const issue of error.issues) console.error(`  - ${issue}`);
       console.error("Fix mcp-rules.json and restart the server.");
     } else {
-      console.error(`project-mcp: failed to start: ${(error as Error).message}`);
+      console.error(`kritikka-mcp: failed to start: ${(error as Error).message}`);
     }
     process.exit(1);
   }
@@ -34,6 +34,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error(`project-mcp: fatal: ${(error as Error).message}`);
+  console.error(`kritikka-mcp: fatal: ${(error as Error).message}`);
   process.exit(1);
 });

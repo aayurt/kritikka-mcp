@@ -4,7 +4,7 @@
     {
       "type": "forbidden",
       "id": "no-internal-state",
-      "match": [".freebuff/**", "dist/**", "node_modules/**", "project-mcp/dist/**"],
+      "match": [".freebuff/**", "dist/**", "node_modules/**", "server/dist/**"],
       "reason": "Internal state and build output are not part of the reviewed repository.",
       "severity": "error"
     },
@@ -45,9 +45,9 @@
       "type": "layerDependency",
       "id": "layered-core",
       "layers": [
-        { "name": "tools", "globs": ["project-mcp/src/tools/**", "project-mcp/src/*.ts"] },
-        { "name": "engine", "globs": ["project-mcp/src/rules.ts", "project-mcp/src/scanner.ts", "project-mcp/src/secrets.ts", "project-mcp/src/impact.ts"] },
-        { "name": "foundation", "globs": ["project-mcp/src/config.ts", "project-mcp/src/readers.ts", "project-mcp/src/types.ts"] }
+        { "name": "tools", "globs": ["server/src/tools/**", "server/src/*.ts"] },
+        { "name": "engine", "globs": ["server/src/rules.ts", "server/src/scanner.ts", "server/src/secrets.ts", "server/src/impact.ts"] },
+        { "name": "foundation", "globs": ["server/src/config.ts", "server/src/readers.ts", "server/src/types.ts"] }
       ],
       "direction": "inward-only",
       "reason": "Tools depend on engines; engines depend only on the foundation. No engine may import a tool, and the foundation imports nothing above it.",

@@ -6,7 +6,7 @@ before making changes and follow them alongside `docs/ARCHITECTURE.md`.
 ## Non-negotiables
 
 1. **Read before write.** Fetch `get_architecture_rules`, `get_conventions`,
-   and `get_current_adrs` (via the `project_mcp` server) before proposing or
+   and `get_current_adrs` (via the `kritikka_mcp` server) before proposing or
    making any change.
 2. **Validate every change.** Pass the proposed change set through
    `validate_change` before writing files. Do not write files that produce

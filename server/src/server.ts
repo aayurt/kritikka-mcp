@@ -38,7 +38,7 @@ const readOnly = { readOnlyHint: true } as const;
  */
 export function createServer(ctx: ProjectContext): McpServer {
   const server = new McpServer(
-    { name: "project-mcp", version: "0.1.0" },
+    { name: "kritikka-mcp", version: "0.1.3" },
     { instructions: "Read-only advisor over the repository: docs, ADRs, workflow, and rule-based change validation." },
   );
 

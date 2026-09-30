@@ -90,10 +90,10 @@ export function validateJulesReady(
     add("remote-fresh", true, "no remote configured; freshness not applicable");
   }
 
-  // 5. Install state valid
-  const nm = existsSync(join(ctx.projectRoot, "project-mcp", "node_modules"));
-  const lock = existsSync(join(ctx.projectRoot, "project-mcp", "package-lock.json"));
-  add("install-valid", nm && lock, nm ? "node_modules present alongside lockfile" : "project-mcp/node_modules missing; run 'npm --prefix project-mcp ci'");
+  // 5. Install state valid (Krittika checkout layout: server/ with node_modules + lockfile)
+  const nm = existsSync(join(ctx.projectRoot, "server", "node_modules"));
+  const lock = existsSync(join(ctx.projectRoot, "server", "package-lock.json"));
+  add("install-valid", nm && lock, nm ? "node_modules present alongside lockfile" : "server/node_modules missing; run 'npm --prefix server ci'");
 
   // 6. No conflicting agent state (merge/rebase/cherry-pick in progress)
   const gitDir = gitRead(ctx.projectRoot, "rev-parse", ["--git-dir"]);
