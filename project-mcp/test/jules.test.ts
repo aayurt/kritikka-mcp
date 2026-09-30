@@ -42,7 +42,7 @@ function gitRepo(
     writeFileSync(target, content);
   }
   const run = (args: string[]) => execFileSync("git", args, { cwd: root, encoding: "utf8" });
-  run(["init", "-q"]);
+  run(["init", "-q", "--initial-branch=main"]);
   run(["config", "user.email", "test@example.com"]);
   run(["config", "user.name", "Test"]);
   run(["add", "-A"]);

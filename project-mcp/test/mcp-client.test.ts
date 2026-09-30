@@ -23,7 +23,7 @@ describe("mcp stdio integration", () => {
 
   beforeAll(async () => {
     // the jules-ready gate requires a real git worktree
-    execFileSync("git", ["init", "-q"], { cwd: repoRoot });
+    execFileSync("git", ["init", "-q", "--initial-branch=main"], { cwd: repoRoot });
     execFileSync("git", ["config", "user.email", "test@example.com"], { cwd: repoRoot });
     execFileSync("git", ["config", "user.name", "Test"], { cwd: repoRoot });
     execFileSync("git", ["add", "-A"], { cwd: repoRoot });
