@@ -18,6 +18,7 @@ import {
 import { getConstraints, validateContractsTool } from "./tools/contracts-tools.js";
 import { retrieveRelevantContext } from "./tools/context-tools.js";
 import { compressContextTool } from "./tools/compress-context.js";
+import { findExistingPatternTool } from "./tools/find-pattern.js";
 
 const taskSchema = z.object({
   description: z.string().min(1),
@@ -252,6 +253,23 @@ export function createServer(ctx: ProjectContext): McpServer {
     },
     async ({ description, files, budgetLines }) => ({
       content: [{ type: "text", text: JSON.stringify(compressContextTool(ctx, { description, files, budgetLines }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "find_existing_pattern",
+    {
+      title: "Find existing pattern",
+      description:
+        "Discover prior implementations of a concept (e.g. pagination, retry, validation) ranked by usage and test coverage, with a recommendation for the established pattern to copy.",
+      annotations: readOnly,
+      inputSchema: {
+        concept: z.string().min(1),
+        limit: z.number().int().positive().max(20).default(5),
+      },
+    },
+    async ({ concept, limit }) => ({
+      content: [{ type: "text", text: JSON.stringify(findExistingPatternTool(ctx, { concept, limit }), null, 2) }],
     }),
   );
 
