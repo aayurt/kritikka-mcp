@@ -9,7 +9,12 @@ const here = resolve(fileURLToPath(import.meta.url), "..");
 const serverEntry = resolve(here, "../build/index.js");
 
 describe("mcp stdio integration", () => {
-  const repoRoot = makeFixtureRepo();
+  const repoRoot = makeFixtureRepo({
+    files: {
+      "src/records/store.ts": "export function storeRecord(): void {}\n",
+      "src/records/store.test.ts": "it('stores a record', () => {});\n",
+    },
+  });
   let client: Client;
 
   beforeAll(async () => {
@@ -44,6 +49,7 @@ describe("mcp stdio integration", () => {
       "check_repository_boundary",
       "compress_context",
       "detect_secrets",
+      "find_existing_pattern",
       "get_architecture_rules",
       "get_constraints",
       "get_conventions",
@@ -231,6 +237,15 @@ describe("mcp stdio integration", () => {
     }
     expect(out.compressedLines).toBeLessThanOrEqual(120 * 1.25 + 1);
     expect(out.guidance.join(" ")).toContain("validate_change");
+  });
+
+  it("find_existing_pattern ranks by usage and recommends the established file", async () => {
+    const report = text(
+      await client.callTool({ name: "find_existing_pattern", arguments: { concept: "store" } }),
+    );
+    expect(report.candidates.length).toBeGreaterThan(0);
+    expect(report.recommendation?.file).toContain("src/records/store.ts");
+    expect(report.guidance.join(" ")).toContain("pattern");
   });
 
   it("get_workflow and get_conventions serve fixture docs", async () => {
