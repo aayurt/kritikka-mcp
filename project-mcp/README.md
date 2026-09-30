@@ -1,5 +1,9 @@
 # kritikka-mcp
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/aayurt/kritikka-mcp/main/assets/krittika-sword.png" alt="A hooded knight bearing the flaming Krittika sword; a stone tablet reads: cut through the noise, enforce the pattern, ship the code" width="560">
+</p>
+
 > **Cut through the noise. Enforce the pattern. Ship the code.**
 
 A repository-aware [MCP](https://modelcontextprotocol.io) server for AI software-engineering agents: it gives them your repo's architecture rules, conventions, ADRs, workflow, and safety guardrails — read-only, enforced, and versioned in `mcp-rules.json`.
