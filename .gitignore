@@ -1,0 +1,14 @@
+# Internal state / generated
+.freebuff/
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.*
+
+# OS & editor
+.DS_Store
+Thumbs.db

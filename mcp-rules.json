@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "type": "forbidden",
+      "id": "no-internal-state",
+      "match": [".freebuff/**", "dist/**", "node_modules/**", "project-mcp/dist/**"],
+      "reason": "Internal state and build output are not part of the reviewed repository.",
+      "severity": "error"
+    },
+    {
+      "type": "requireAdr",
+      "id": "records-engine-governed",
+      "match": ["src/records/**"],
+      "adr": "0001",
+      "reason": "Record persistence is governed by ADR-0001 (record storage engine).",
+      "severity": "error"
+    },
+    {
+      "type": "requireAdr",
+      "id": "queues-governed",
+      "match": ["src/queues/**"],
+      "adr": "0002",
+      "reason": "Background queues are governed by ADR-0002 (isolate background queues, still proposed).",
+      "severity": "error"
+    },
+    {
+      "type": "requireTest",
+      "id": "src-needs-tests",
+      "match": ["src/**/*.ts"],
+      "testMatch": ["**/*.test.ts", "test/**"],
+      "testExempt": ["**/*.d.ts"],
+      "reason": "Every source change ships tests (docs/TESTING.md).",
+      "severity": "error"
+    },
+    {
+      "type": "requireDocUpdate",
+      "id": "architecture-docs-stale",
+      "match": ["src/records/**", "src/queues/**"],
+      "docs": ["docs/ARCHITECTURE.md"],
+      "reason": "Changes in ADR-governed areas should keep docs/ARCHITECTURE.md current.",
+      "severity": "warning"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "project-mcp",
+  "version": "0.1.0",
+  "description": "Read-only MCP server serving project docs, ADRs, workflow, and rule-based change validation.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "project-mcp": "build/index.js"
+  },
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "test": "npm run -s build && vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "picomatch": "^4.0.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/picomatch": "^4.0.3",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
