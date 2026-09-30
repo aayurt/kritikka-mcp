@@ -84,7 +84,7 @@ export type RulesFile = z.infer<typeof rulesFileSchema>;
 export function resolveProjectRoot(rootArg?: string): string {
   const fromArg = rootArg?.trim();
   if (fromArg) return resolve(fromArg);
-  const fromEnv = process.env.PROJECT_MCP_ROOT?.trim();
+  const fromEnv = process.env.KRITTIKA_MCP_ROOT?.trim() ?? process.env.PROJECT_MCP_ROOT?.trim();
   if (fromEnv) return resolve(fromEnv);
   return process.cwd();
 }

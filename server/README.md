@@ -36,7 +36,7 @@ claude mcp add krittika -- npx -y kritikka-mcp --root .
 }
 ```
 
-The root resolves from `--root`, then `PROJECT_MCP_ROOT`, then cwd. Requires Node ≥ 20.
+The root resolves from `--root`, then `KRITTIKA_MCP_ROOT` (legacy: `PROJECT_MCP_ROOT`), then cwd. Requires Node ≥ 20.
 
 ## What it does
 

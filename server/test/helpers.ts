@@ -60,7 +60,7 @@ function adr(id: string, title: string, status: string, date = "2026-01-01"): st
  * and return its absolute path. Caller must rm the path when done.
  */
 export function makeFixtureRepo(options: FixtureOptions = {}): string {
-  const root = mkdtempSync(join(tmpdir(), "project-mcp-fixture-"));
+  const root = mkdtempSync(join(tmpdir(), "kritikka-fixture-"));
   mkdirSync(join(root, "docs/adr"), { recursive: true });
   mkdirSync(join(root, "docs/guides"), { recursive: true });
 

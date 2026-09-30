@@ -12,7 +12,7 @@ operational procedures live in `RUNBOOK.md`.
    `requireAdr` rule in `mcp-rules.json`, the referenced ADR must be
    accepted before the change lands.
 4. **Write tests with the change**, per `docs/TESTING.md`.
-5. **Validate** the change set with the `project_mcp` server
+5. **Validate** the change set with the `kritikka_mcp` server
    (`validate_change`) before opening a pull request.
 6. **Open a PR** with a description that references any ADRs involved.
 

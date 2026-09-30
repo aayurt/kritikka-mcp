@@ -33,8 +33,8 @@ function gitRepo(
   writeFileSync(join(root, ".gitignore"), "node_modules/\n");
   if (opts.withInstall !== false) {
     // valid install state for the gate (ignored by git so the tree stays clean)
-    mkdirSync(join(root, "project-mcp/node_modules"), { recursive: true });
-    writeFileSync(join(root, "project-mcp/package-lock.json"), "{}\n");
+    mkdirSync(join(root, "server/node_modules"), { recursive: true });
+    writeFileSync(join(root, "server/package-lock.json"), "{}\n");
   }
   for (const [path, content] of Object.entries(files)) {
     const target = join(root, path);
@@ -116,7 +116,7 @@ describe("validateJulesReady", () => {
     try {
       const report = validateJulesReady(ctx, { acceptanceCriteria: ["c"], testFiles: ["t.ts"] });
       const install = report.checks.find((c) => c.name === "install-valid");
-      expect(install?.pass).toBe(false); // fixture has no project-mcp/node_modules
+      expect(install?.pass).toBe(false); // fixture has no server/node_modules
       expect(report.ready).toBe(false);
     } finally {
       cleanup(ctx);

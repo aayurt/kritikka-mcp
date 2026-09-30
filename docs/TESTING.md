@@ -1,7 +1,7 @@
 # Testing
 
 Testing policy and requirements enforced (advised) through the
-`project_mcp` server's `requireTest` rules in `mcp-rules.json`.
+`kritikka_mcp` server's `requireTest` rules in `mcp-rules.json`.
 
 ## Requirements
 
@@ -27,7 +27,7 @@ Testing policy and requirements enforced (advised) through the
 ## Running tests
 
 ```bash
-npm --prefix project-mcp test
+npm --prefix server test
 ```
 
 ## Coverage
