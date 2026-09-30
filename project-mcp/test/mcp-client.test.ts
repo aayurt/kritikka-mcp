@@ -40,13 +40,17 @@ describe("mcp stdio integration", () => {
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name).sort();
     expect(names).toEqual([
+      "analyze_impact",
       "check_repository_boundary",
+      "detect_secrets",
       "get_architecture_rules",
       "get_conventions",
       "get_current_adrs",
       "get_project_identity",
       "get_testing_requirements",
       "get_workflow",
+      "inspect_task",
+      "validate_architecture",
       "validate_change",
     ]);
     for (const tool of tools) {
@@ -149,6 +153,31 @@ describe("mcp stdio integration", () => {
     });
     expect(res.isError).toBe(true);
     expect(JSON.stringify(res.content)).toContain("-32602");
+  });
+
+  it("validate_architecture, detect_secrets, inspect_task, analyze_impact over the wire", async () => {
+    const arch = text(await client.callTool({ name: "validate_architecture", arguments: {} }));
+    expect(arch.valid).toBe(true);
+    expect(arch.rulesChecked).toBe(0);
+
+    const secrets = text(await client.callTool({ name: "detect_secrets", arguments: {} }));
+    expect(secrets.clean).toBe(true);
+    expect(secrets.scannedFiles).toBeGreaterThan(0);
+
+    const task = text(
+      await client.callTool({
+        name: "inspect_task",
+        arguments: { description: "Touch records", files: ["src/records/store.ts"] },
+      }),
+    );
+    expect(task.matchedRules.map((m: any) => m.ruleId)).toContain("records-engine-governed");
+    expect(task.adrRequirement?.adr).toBe("0001");
+
+    const impact = text(
+      await client.callTool({ name: "analyze_impact", arguments: { files: ["src/records/store.ts"] } }),
+    );
+    expect(impact.governedPaths.length).toBeGreaterThan(0);
+    expect(impact.guidance).toContain("validate_change");
   });
 
   it("get_workflow and get_conventions serve fixture docs", async () => {

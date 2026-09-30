@@ -18,6 +18,10 @@ must respect.
 4. **Boundary discipline.** Code must never read or write outside the
    repository root. Paths that escape the root (`../`, absolute paths) are
    rejected by policy, not by accident.
+5. **Layer direction is mechanical.** `mcp-rules.json` declares a
+   `layerDependency` rule (tools → engines → foundation); `validate_architecture`
+   scans static imports and fails on outward imports. Adding a layer means
+   editing the rule, not trusting reviewers to remember.
 
 ## Layering
 

@@ -9,6 +9,17 @@ import { getWorkflow } from "./tools/get-workflow.js";
 import { getTestingRequirements } from "./tools/get-testing-requirements.js";
 import { changesSchema, validateChange } from "./tools/validate-change.js";
 import { boundarySchema, checkRepositoryBoundary } from "./tools/check-repository-boundary.js";
+import {
+  validateArchitecture,
+  detectSecretsTool,
+  inspectTask,
+  analyzeImpact,
+} from "./tools/governance-tools.js";
+
+const taskSchema = z.object({
+  description: z.string().min(1),
+  files: z.array(z.string().min(1)).default([]),
+});
 
 const readOnly = { readOnlyHint: true } as const;
 
@@ -120,6 +131,63 @@ export function createServer(ctx: ProjectContext): McpServer {
     },
     async ({ paths, operation }) => ({
       content: [{ type: "text", text: JSON.stringify(checkRepositoryBoundary(ctx, { paths, operation }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "validate_architecture",
+    {
+      title: "Validate architecture",
+      description:
+        "Scan the repository's static imports against layerDependency rules: catches outward imports (e.g. domain -> React, UI -> database) mechanically.",
+      annotations: readOnly,
+    },
+    async () => ({
+      content: [{ type: "text", text: JSON.stringify(validateArchitecture(ctx), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "detect_secrets",
+    {
+      title: "Detect secrets",
+      description:
+        "Pattern-scan text files for credential-shaped strings (keys, tokens, connection strings). Evidence is redacted.",
+      annotations: readOnly,
+    },
+    async () => ({
+      content: [{ type: "text", text: JSON.stringify(detectSecretsTool(ctx), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "inspect_task",
+    {
+      title: "Inspect task",
+      description:
+        "Before coding: which governance rules, ADRs, layers, and test requirements apply to the paths a task plans to touch.",
+      annotations: readOnly,
+      inputSchema: {
+        description: taskSchema.shape.description,
+        files: taskSchema.shape.files,
+      },
+    },
+    async ({ description, files }) => ({
+      content: [{ type: "text", text: JSON.stringify(inspectTask(ctx, { description, files }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "analyze_impact",
+    {
+      title: "Analyze impact",
+      description:
+        "Static impact analysis for candidate paths: governed rules, layers touched, ADR and test requirements, plus next-step guidance.",
+      annotations: readOnly,
+      inputSchema: { files: z.array(z.string().min(1)).min(1) },
+    },
+    async ({ files }) => ({
+      content: [{ type: "text", text: JSON.stringify(analyzeImpact(ctx, { files }), null, 2) }],
     }),
   );
 

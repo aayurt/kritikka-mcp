@@ -180,7 +180,7 @@ describe("rules loading", () => {
       severity: "error",
     } as RulesFile["rules"][number];
     const root = makeFixtureRepo({
-      rules: { version: 1, rules: [dup, { ...dup, match: ["b/**"] }] },
+      rules: { version: 1, rules: [dup, { ...dup, match: ["b/**"] } as typeof dup] },
     });
     try {
       expect(() => loadRules(root)).toThrow(/Duplicate rule id: same/);

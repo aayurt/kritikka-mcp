@@ -40,6 +40,18 @@
       "docs": ["docs/ARCHITECTURE.md"],
       "reason": "Changes in ADR-governed areas should keep docs/ARCHITECTURE.md current.",
       "severity": "warning"
+    },
+    {
+      "type": "layerDependency",
+      "id": "layered-core",
+      "layers": [
+        { "name": "tools", "globs": ["project-mcp/src/tools/**", "project-mcp/src/*.ts"] },
+        { "name": "engine", "globs": ["project-mcp/src/rules.ts", "project-mcp/src/scanner.ts", "project-mcp/src/secrets.ts", "project-mcp/src/impact.ts"] },
+        { "name": "foundation", "globs": ["project-mcp/src/config.ts", "project-mcp/src/readers.ts", "project-mcp/src/types.ts"] }
+      ],
+      "direction": "inward-only",
+      "reason": "Tools depend on engines; engines depend only on the foundation. No engine may import a tool, and the foundation imports nothing above it.",
+      "severity": "error"
     }
   ]
 }
