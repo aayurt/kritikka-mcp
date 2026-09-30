@@ -82,15 +82,14 @@ jobs:
         run: npm run build
         working-directory: ./project-mcp
 
-      - name: Create version bump
+      - name: Create version bump (no publish)
         id: changeset
         uses: changesets/action@v1
         with:
-          publish: npm run release
+          version: npm run version
           cwd: ./project-mcp
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
         if: steps.changeset.outputs.published == 'true'
