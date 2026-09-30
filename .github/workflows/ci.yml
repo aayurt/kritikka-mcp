@@ -4,9 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  test:
+  build-test:
     name: Typecheck, test, and smoke (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
@@ -16,6 +17,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v4
@@ -39,3 +42,48 @@ jobs:
       - name: Smoke test through a live MCP client
         working-directory: project-mcp
         run: node scripts/smoke.mjs "$(cd .. && pwd)"
+
+  changeset:
+    name: Version & Publish
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+          cache-dependency-path: project-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        working-directory: ./project-mcp
+
+      - name: Create version bump
+        id: changeset
+        uses: changesets/action@v1
+        with:
+          publish: npm run release
+          cwd: ./project-mcp
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to npm
+        if: steps.changeset.outputs.published == 'true'
+        run: npm publish
+        working-directory: ./project-mcp
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

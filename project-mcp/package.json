@@ -4,7 +4,6 @@
   "description": "Read-only MCP server serving project docs, ADRs, workflow, and rule-based change validation.",
   "type": "module",
   "license": "MIT",
-  "private": true,
   "engines": {
     "node": ">=20"
   },
@@ -16,7 +15,8 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "test": "npm run -s build && vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "release": "changeset publish"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.0",
@@ -24,6 +24,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "@types/node": "^26.6.3",
     "@types/picomatch": "^4.0.3",
     "typescript": "^5.9.2",
