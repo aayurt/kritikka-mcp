@@ -1,6 +1,6 @@
 {
   "name": "project-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only MCP server serving project docs, ADRs, workflow, and rule-based change validation.",
   "type": "module",
   "license": "MIT",
