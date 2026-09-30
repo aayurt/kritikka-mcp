@@ -42,6 +42,7 @@ describe("mcp stdio integration", () => {
     expect(names).toEqual([
       "analyze_impact",
       "check_repository_boundary",
+      "compress_context",
       "detect_secrets",
       "get_architecture_rules",
       "get_constraints",
@@ -209,6 +210,27 @@ describe("mcp stdio integration", () => {
     expect(bundle.code.some((c: any) => c.path.endsWith("store.test.ts")) || bundle.tests.length >= 0).toBe(true);
     expect(bundle.guidance.join(" ")).toContain("validate_change");
     expect(bundle.estimatedLines).toBeGreaterThan(0);
+  });
+
+  it("compress_context condenses the bundle under a budget", async () => {
+    const out = text(
+      await client.callTool({
+        name: "compress_context",
+        arguments: {
+          description: "Add record export to the store",
+          files: ["src/records/store.ts"],
+          budgetLines: 120,
+        },
+      }),
+    );
+    expect(out.items.length).toBeGreaterThan(0);
+    for (const item of out.items) {
+      expect(item.strategy).toMatch(/verbatim|signatures|sections|json-keys|test-names|truncate/);
+      expect(typeof item.excerpt).toBe("string");
+      expect(item.originalLines).toBeGreaterThan(0);
+    }
+    expect(out.compressedLines).toBeLessThanOrEqual(120 * 1.25 + 1);
+    expect(out.guidance.join(" ")).toContain("validate_change");
   });
 
   it("get_workflow and get_conventions serve fixture docs", async () => {
