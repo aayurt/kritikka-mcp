@@ -1,5 +1,9 @@
 # Krittika MCP
 
+<p align="center">
+  <img src="assets/krittika-sword.png" alt="A hooded knight bearing the flaming Krittika sword; a stone tablet reads: cut through the noise, enforce the pattern, ship the code" width="720">
+</p>
+
 > **Cut through the noise. Enforce the pattern. Ship the code.**
 
 **Krittika** is a repository-aware MCP server for AI software-engineering agents. It gives agents a structured understanding of a codebase — its architecture, conventions, ADRs, workflow, testing requirements, and safety rules — so they work according to the repository's rules instead of reinventing them on every task.
