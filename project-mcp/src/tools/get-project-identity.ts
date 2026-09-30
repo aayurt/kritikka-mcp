@@ -1,14 +1,6 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { safeRead, type ProjectContext } from "../config.js";
 import { DOC_PATHS } from "../readers.js";
-
-/** All canonical doc paths (files only) with presence checked on disk. */
-function docInventory(projectRoot: string): { path: string; present: boolean }[] {
-  return Object.values(DOC_PATHS)
-    .filter((p) => !p.endsWith("/"))
-    .map((path) => ({ path, present: existsSync(join(projectRoot, path)) }));
-}
+import { discoverContracts } from "../contracts.js";
 
 export function getProjectIdentity(ctx: ProjectContext) {
   const readme = readReadme(ctx.projectRoot, DOC_PATHS.readme);
@@ -20,8 +12,17 @@ export function getProjectIdentity(ctx: ProjectContext) {
     dirName,
     description: readme?.split("\n").slice(1).map((l) => l.trim()).find((l) => l.length > 0) ?? "",
     ...(readme ? { readme } : {}),
-    docInventory: docInventory(ctx.projectRoot),
+    docInventory: docInventory(ctx),
   };
+}
+
+/** Discovered contract inventory: well-known docs, extras in docs/, ADR dir. */
+function docInventory(ctx: ProjectContext) {
+  return discoverContracts(ctx).map((d) => ({
+    path: d.path,
+    role: d.role,
+    present: d.present,
+  }));
 }
 
 /** README content, or undefined when absent/unreadable. */

@@ -81,12 +81,24 @@ export function parseAdr(projectRoot: string, path: string): ParsedAdr | { found
     return line.slice(line.indexOf(":") + 1).trim().replace(/^["']|["']$/g, "");
   };
   const idFromName = path.match(/(\d{4})-[a-z0-9-]+\.md$/)?.[1];
+  const supersedes = new Set<string>();
+  const fmField = field("supersedes");
+  if (fmField) {
+    for (const m of fmField.matchAll(/\d{4}/g)) supersedes.add(m[0]);
+  }
+  if (supersedes.size === 0) {
+    const body = fm ? content.slice(fm[0].length) : content;
+    for (const m of body.matchAll(/[Ss]upersedes?\s+((?:ADR-)?\d{4}(?:\s*,\s*(?:ADR-)?\d{4})*)/g)) {
+      for (const id of m[1]?.matchAll(/\d{4}/g) ?? []) supersedes.add(id[0] ?? "");
+    }
+  }
   return {
     file: path,
     id: field("id") ?? idFromName ?? "0000",
     title: field("title") ?? parseAdrTitle(content) ?? path,
     status: parseAdrStatus(content),
     date: field("date"),
+    supersedes: [...supersedes].filter(Boolean),
     content,
   };
 }

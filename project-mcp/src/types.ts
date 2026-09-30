@@ -47,6 +47,8 @@ export interface ParsedAdr {
   title: string;
   status: AdrStatus;
   date?: string | undefined;
+  /** ADR ids this one supersedes (frontmatter or body), normalized to 4 digits. */
+  supersedes: string[];
   content: string;
 }
 

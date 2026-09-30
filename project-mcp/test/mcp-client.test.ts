@@ -44,6 +44,7 @@ describe("mcp stdio integration", () => {
       "check_repository_boundary",
       "detect_secrets",
       "get_architecture_rules",
+      "get_constraints",
       "get_conventions",
       "get_current_adrs",
       "get_project_identity",
@@ -52,6 +53,7 @@ describe("mcp stdio integration", () => {
       "inspect_task",
       "validate_architecture",
       "validate_change",
+      "validate_contracts",
     ]);
     for (const tool of tools) {
       expect(tool.annotations?.readOnlyHint, tool.name).toBe(true);
@@ -178,6 +180,17 @@ describe("mcp stdio integration", () => {
     );
     expect(impact.governedPaths.length).toBeGreaterThan(0);
     expect(impact.guidance).toContain("validate_change");
+  });
+
+  it("get_constraints compiles the contract; validate_contracts stays consistent", async () => {
+    const constraints = text(await client.callTool({ name: "get_constraints", arguments: {} }));
+    expect(constraints.rules.adrRequirements[0]).toMatchObject({ adr: "0001" });
+    expect(constraints.adrIndex.length).toBe(3);
+    expect(constraints.agentGuidance.length).toBeGreaterThan(0);
+
+    const contracts = text(await client.callTool({ name: "validate_contracts", arguments: {} }));
+    expect(contracts.consistent).toBe(true);
+    expect(contracts.docs.some((d: any) => d.path === "docs/adr")).toBe(true);
   });
 
   it("get_workflow and get_conventions serve fixture docs", async () => {
