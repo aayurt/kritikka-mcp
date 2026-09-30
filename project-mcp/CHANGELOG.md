@@ -1,5 +1,11 @@
 # project-mcp
 
+## 0.1.2
+
+### Patch Changes
+
+- Rename npm package from `@aayurt/project-mcp` to `kritikka-mcp` (bin renamed to match) ahead of first public publish
+
 ## 0.1.1
 
 ### Patch Changes
