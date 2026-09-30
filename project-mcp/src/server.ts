@@ -15,6 +15,7 @@ import {
   inspectTask,
   analyzeImpact,
 } from "./tools/governance-tools.js";
+import { getConstraints, validateContractsTool } from "./tools/contracts-tools.js";
 
 const taskSchema = z.object({
   description: z.string().min(1),
@@ -188,6 +189,32 @@ export function createServer(ctx: ProjectContext): McpServer {
     },
     async ({ files }) => ({
       content: [{ type: "text", text: JSON.stringify(analyzeImpact(ctx, { files }), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "get_constraints",
+    {
+      title: "Get constraints",
+      description:
+        "One-call machine contract: forbidden paths, ADR requirements with statuses, test and doc-update policies, layer direction rules, ADR index, and agent guidance.",
+      annotations: readOnly,
+    },
+    async () => ({
+      content: [{ type: "text", text: JSON.stringify(getConstraints(ctx), null, 2) }],
+    }),
+  );
+
+  server.registerTool(
+    "validate_contracts",
+    {
+      title: "Validate contracts",
+      description:
+        "Consistency between prose and machine contracts: rule targets that do not exist, ADR supersede chains that were not flipped, duplicate ids, layers absent from docs/ARCHITECTURE.md.",
+      annotations: readOnly,
+    },
+    async () => ({
+      content: [{ type: "text", text: JSON.stringify(validateContractsTool(ctx), null, 2) }],
     }),
   );
 
