@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeFixtureRepo, removeFixtureRepo } from "./helpers.js";
@@ -13,11 +14,20 @@ describe("mcp stdio integration", () => {
     files: {
       "src/records/store.ts": "export function storeRecord(): void {}\n",
       "src/records/store.test.ts": "it('stores a record', () => {});\n",
+      "project-mcp/node_modules/.keep": "",
+      "project-mcp/package-lock.json": "{}\n",
+      ".gitignore": "node_modules/\n",
     },
   });
   let client: Client;
 
   beforeAll(async () => {
+    // the jules-ready gate requires a real git worktree
+    execFileSync("git", ["init", "-q"], { cwd: repoRoot });
+    execFileSync("git", ["config", "user.email", "test@example.com"], { cwd: repoRoot });
+    execFileSync("git", ["config", "user.name", "Test"], { cwd: repoRoot });
+    execFileSync("git", ["add", "-A"], { cwd: repoRoot });
+    execFileSync("git", ["commit", "-qm", "init"], { cwd: repoRoot });
     const transport = new StdioClientTransport({
       command: process.execPath,
       args: [serverEntry, "--root", repoRoot],
@@ -58,10 +68,13 @@ describe("mcp stdio integration", () => {
       "get_testing_requirements",
       "get_workflow",
       "inspect_task",
+      "prepare_jules_task",
       "retrieve_relevant_context",
       "validate_architecture",
       "validate_change",
       "validate_contracts",
+      "validate_jules_ready",
+      "validate_jules_result",
     ]);
     for (const tool of tools) {
       expect(tool.annotations?.readOnlyHint, tool.name).toBe(true);
@@ -246,6 +259,53 @@ describe("mcp stdio integration", () => {
     expect(report.candidates.length).toBeGreaterThan(0);
     expect(report.recommendation?.file).toContain("src/records/store.ts");
     expect(report.guidance.join(" ")).toContain("pattern");
+  });
+
+  it("jules gates: ready, task package with CLI contract, result verdict", async () => {
+    const ready = text(
+      await client.callTool({
+        name: "validate_jules_ready",
+        arguments: {
+          acceptanceCriteria: ["store exports a function"],
+          testFiles: ["src/records/store.test.ts"],
+        },
+      }),
+    );
+    expect(ready.ready).toBe(true);
+    expect(ready.checks.find((c: any) => c.name === "git-clean")?.pass).toBe(true);
+    expect(ready.checks.find((c: any) => c.name === "install-valid")?.pass).toBe(true);
+
+    const pkg = text(
+      await client.callTool({
+        name: "prepare_jules_task",
+        arguments: {
+          description: "Extend the record store",
+          plannedPaths: ["src/records/store.ts"],
+          acceptanceCriteria: ["store exports a function"],
+          testFiles: ["src/records/store.test.ts"],
+        },
+      }),
+    );
+    expect(pkg.dispatch.tool).toBe("jules-cli");
+    expect(pkg.dispatch.commandTemplate).toContain("jules submit --repo");
+    expect(pkg.dispatch.runBy).toBe("hermes-or-human");
+    expect(pkg.context.items.length).toBeGreaterThan(0);
+
+    const verdict = text(
+      await client.callTool({
+        name: "validate_jules_result",
+        arguments: {
+          branch: "main",
+          changes: [
+            { path: "src/records/export.ts", changeType: "create" },
+            { path: "src/records/export.test.ts", changeType: "create" },
+          ],
+          acceptanceCriteria: ["exports exist"],
+        },
+      }),
+    );
+    expect(verdict.accepted).toBe(true);
+    expect(verdict.secretFindings).toBe(0);
   });
 
   it("get_workflow and get_conventions serve fixture docs", async () => {
